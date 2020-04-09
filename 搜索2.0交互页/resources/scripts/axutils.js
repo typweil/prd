@@ -4,12 +4,6 @@
  *
  *
  */
-var START_URL_NAME = 'start.html';
-var PAGE_ID_NAME = 'id';
-var PAGE_URL_NAME = 'p';
-var SITEMAP_COLLAPSE_VAR_NAME = 'c';
-var SITEMAP_COLLAPSE_VALUE = "1";
-var SITEMAP_CLOSE_VALUE = "2";
 
  (function() {
      // define the root namespace object
@@ -121,42 +115,6 @@ var SITEMAP_CLOSE_VALUE = "2";
          }
          return returnVal;
      };
-     
-     $axure.utils.isInPlayer = function() { return window.name == 'mainFrame'; }
-     // This will return true if prototype is opened from version of app after update with code that sets this value 
-     // (won't be able to distinguish between browser and outdated app)
-     $axure.utils.isShareApp = function () { return /ShareApp/.test(navigator.userAgent); }
-
-     $axure.utils.setHashStringVar = function(currentHash, varName, varVal) {
-         var varWithEqual = varName + '=';
-         var poundVarWithEqual = varVal === '' ? '' : '#' + varName + '=' + varVal;
-         var ampVarWithEqual = varVal === '' ? '' : '&' + varName + '=' + varVal;
-         var hashToSet = '';
-
-         var pageIndex = currentHash.indexOf('#' + varWithEqual);
-         if (pageIndex == -1) pageIndex = currentHash.indexOf('&' + varWithEqual);
-         if (pageIndex != -1) {
-             var newHash = currentHash.substring(0, pageIndex);
-
-             newHash = newHash == '' ? poundVarWithEqual : newHash + ampVarWithEqual;
-
-             var ampIndex = currentHash.indexOf('&', pageIndex + 1);
-             if (ampIndex != -1) {
-                 newHash = newHash == '' ? '#' + currentHash.substring(ampIndex + 1) : newHash + currentHash.substring(ampIndex);
-             }
-             hashToSet = newHash;
-         } else if (currentHash.indexOf('#') != -1) {
-             hashToSet = currentHash + ampVarWithEqual;
-         } else {
-             hashToSet = poundVarWithEqual;
-         }
-
-         if (hashToSet != '' || varVal == '') {
-             return hashToSet;
-         }
-
-         return null;
-     }
 
      var matrixBase = {
          mul: function(val) {

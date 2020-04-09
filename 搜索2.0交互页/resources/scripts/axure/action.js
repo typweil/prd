@@ -411,13 +411,6 @@
             }
 
             if(url) {
-                if(shouldUseStartHtml(action)) {
-                    //use start.html to load player
-                    url = urlWithStartHtml(url);
-                    //collapse player for popup
-                    if(action.linkType == "popup") url = urlWithCollapseSitemap(url);
-                }
-                
                 if(action.linkType == "popup") {
                     $ax.navigate({
                         url: url,
@@ -438,24 +431,6 @@
 
         _dispatchAction(eventInfo, actions, index + 1);
     };
-    
-    //use start.html will add a player to the prototype
-    var shouldUseStartHtml = function(linkAction) {
-        return linkAction.target.targetType == 'page' //only adding player for page, not external links
-               && (linkAction.linkType == "popup" || linkAction.linkType == "new") //only add for popup and new tabs
-               && $axure.utils.isInPlayer() //allow user to view without player (maybe useful for user testing)
-               && !$axure.utils.isShareApp() //share app use special handling on its link, add start.html breaks the handling
-    }
-    
-    var urlWithStartHtml = function(url) {
-        var pageName = url.substring(0, url.lastIndexOf('.html'));
-        var pageHash = $axure.utils.setHashStringVar(START_URL_NAME, PAGE_URL_NAME, pageName);
-        return START_URL_NAME + pageHash;
-    }
-    
-    var urlWithCollapseSitemap = function(url) {
-        return url + '&' + SITEMAP_COLLAPSE_VAR_NAME + '=' + SITEMAP_COLLAPSE_VALUE;
-    }
 
     var _includeVars = function(target, eventInfo) {
         if(target.includeVariables) return true;

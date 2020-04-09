@@ -9,8 +9,7 @@
 
     $ax.drag.StartDragWidget = function(event, id) {
         $ax.setjBrowserEvent(jQuery.Event(event));
-        //we should only start drag on one target, otherwise the _dragWidget and _stopDragWidget events from multiple targets will be conflicted
-        if(event.donotdrag || widgetDragInfo.started) return;
+        if(event.donotdrag) return;
 
         var x, y;
         var tg;
@@ -30,8 +29,7 @@
             tg = event.target;
         }
 
-        widgetDragInfo.started = true;
-        widgetDragInfo.hasDragged= false;
+        widgetDragInfo.hasStarted = false;
         widgetDragInfo.widgetId = id;
         widgetDragInfo.cursorStartX = x;
         widgetDragInfo.cursorStartY = y;
@@ -49,7 +47,7 @@
         $ax.event.addEvent(document, movedownName, _dragWidget, true);
         $ax.event.addEvent(document, $ax.features.eventNames.mouseUpName, _stopDragWidget, true);
 
-        //$ax.legacy.SuppressBubble(event);
+        $ax.legacy.SuppressBubble(event);
     };
 
     var _dragWidget = function(event) {
@@ -85,27 +83,17 @@
 
         widgetDragInfo.currentTime = (new Date()).getTime();
 
-        // $ax.legacy.SuppressBubble(event);
+        $ax.legacy.SuppressBubble(event);
 
-        if(!widgetDragInfo.hasDragged) {
-            widgetDragInfo.hasDragged = true;
+        if(!widgetDragInfo.hasStarted) {
+            widgetDragInfo.hasStarted = true;
             $ax.event.raiseSyntheticEvent(widgetDragInfo.widgetId, "onDragStart");
 
-            //only update to move cursor is we are moving objects
-            if($ax.event.hasSyntheticEvent(widgetDragInfo.widgetId, "onDrag")) {
-                widgetDragInfo.cursorChanged = true;
-                widgetDragInfo.oldBodyCursor = window.document.body.style.cursor;
-                window.document.body.style.cursor = 'move';
-                widgetDragInfo.oldCursor = widget.style.cursor;
-                var widget = window.document.getElementById(widgetDragInfo.widgetId);
-                widget.style.cursor = 'move';
-                //need to do this in order to change the cursor under nice scroll
-                var niceScrollContainer = $ax.adaptive.getNiceScrollContainer(widget);
-                if(niceScrollContainer) {
-                    widgetDragInfo.oldNiceScrollContainerCursor = niceScrollContainer.style.cursor;
-                    niceScrollContainer.style.cursor = 'move';
-                }
-            }
+            widgetDragInfo.oldBodyCursor = window.document.body.style.cursor;
+            window.document.body.style.cursor = 'move';
+            var widget = window.document.getElementById(widgetDragInfo.widgetId);
+            widgetDragInfo.oldCursor = widget.style.cursor;
+            widget.style.cursor = 'move';
         }
 
         $ax.event.raiseSyntheticEvent(widgetDragInfo.widgetId, "onDrag");
@@ -140,7 +128,7 @@
 
         tg = IE_10_AND_BELOW ? window.event.srcElement : event.target;
 
-        if(widgetDragInfo.hasDragged) {
+        if(widgetDragInfo.hasStarted) {
             widgetDragInfo.currentTime = (new Date()).getTime();
             $ax.event.raiseSyntheticEvent(widgetDragInfo.widgetId, "onDragDrop");
 
@@ -161,19 +149,10 @@
                 $ax.event.raiseSyntheticEvent(widgetDragInfo.widgetId, "onSwipeDown");
             }
 
-            if(widgetDragInfo.cursorChanged) {
-                window.document.body.style.cursor = widgetDragInfo.oldBodyCursor;
-                var widget = window.document.getElementById(widgetDragInfo.widgetId);
-                // It may be null if OnDragDrop filtered out the widget
-                if(widget != null) widget.style.cursor = widgetDragInfo.oldCursor;
-                //we don't seems need to reset nicescroll cursor on container, nicescroll seems updates its cursor 
-                // if(widgetDragInfo.oldNiceScrollContainerCursor != undefined) {
-                //     var niceScrollContainer = $ax.adaptive.getNiceScrollContainer(widget);
-                //     if(niceScrollContainer) niceScrollContainer.style.cursor = widgetDragInfo.oldNiceScrollContainerCursor;
-                //     widgetDragInfo.oldNiceScrollContainerCursor = undefined;
-                // }
-                widgetDragInfo.cursorChanged = undefined;
-            }
+            window.document.body.style.cursor = widgetDragInfo.oldBodyCursor;
+            var widget = window.document.getElementById(widgetDragInfo.widgetId);
+            // It may be null if OnDragDrop filtered out the widget
+            if(widget != null) widget.style.cursor = widgetDragInfo.oldCursor;
 
             if(widgetDragInfo.targetWidget == tg && !event.changedTouches) {
                 // suppress the click after the drag on desktop browsers
@@ -188,41 +167,40 @@
             }
         }
 
-        widgetDragInfo.hasDragged = false;
+        widgetDragInfo.hasStarted = false;
         widgetDragInfo.movedWidgets = new Object();
-        widgetDragInfo.started = false;
 
         return false;
     };
 
     $ax.drag.GetDragX = function() {
-        if(widgetDragInfo.hasDragged) return widgetDragInfo.xDelta;
+        if(widgetDragInfo.hasStarted) return widgetDragInfo.xDelta;
         return 0;
     };
 
     $ax.drag.GetDragY = function() {
-        if(widgetDragInfo.hasDragged) return widgetDragInfo.yDelta;
+        if(widgetDragInfo.hasStarted) return widgetDragInfo.yDelta;
         return 0;
     };
 
     $ax.drag.GetTotalDragX = function() {
-        if(widgetDragInfo.hasDragged) return widgetDragInfo.currentX - widgetDragInfo.cursorStartX;
+        if(widgetDragInfo.hasStarted) return widgetDragInfo.currentX - widgetDragInfo.cursorStartX;
         return 0;
     };
 
     $ax.drag.GetTotalDragY = function() {
-        if(widgetDragInfo.hasDragged) return widgetDragInfo.currentY - widgetDragInfo.cursorStartY;
+        if(widgetDragInfo.hasStarted) return widgetDragInfo.currentY - widgetDragInfo.cursorStartY;
         return 0;
     };
 
     $ax.drag.GetDragTime = function() {
-        if(widgetDragInfo.hasDragged) return widgetDragInfo.currentTime - widgetDragInfo.startTime;
+        if(widgetDragInfo.hasStarted) return widgetDragInfo.currentTime - widgetDragInfo.startTime;
         return 600000;
     };
 
     $ax.drag.LogMovedWidgetForDrag = function (id, dragInfo) {
         dragInfo = dragInfo || widgetDragInfo;
-        if(dragInfo.hasDragged) {
+        if(dragInfo.hasStarted) {
             var containerIndex = id.indexOf('_container');
             if(containerIndex != -1) id = id.substring(0, containerIndex);
 

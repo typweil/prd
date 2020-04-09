@@ -44,7 +44,7 @@ $axure.internal(function($ax) {
             var scrollX = win.scrollLeft();
 
         var messageData = { id: elementId, x: event.pageX - scrollX, y: event.pageY - scrollY }
-        if (!$axure.utils.isInPlayer()) messageData.page = $ax.pageData.notesData;
+        if (window.name != 'mainFrame') messageData.page = $ax.pageData.notesData;
         $ax.messageCenter.postMessage('toggleAnnDialog', messageData);
     }
     

@@ -128,14 +128,10 @@
             if(shouldFire) $ax.action.fireAnimationFromQueue(id, $ax.action.queueTypes.move);
         };
         if(options.easing==='none') {
-            query.animate(cssStyles, {
-                duration: 0,
-                queue: false,
-                complete: function() { //this animation somehow is not fired without this complete function
-                    if(rootLayer) $ax.visibility.popContainer(rootLayer, false);
-                    if(animationCompleteCallback) animationCompleteCallback();
-                }
-            });
+            query.animate(cssStyles, { duration: 0, queue: false });
+
+            if(rootLayer) $ax.visibility.popContainer(rootLayer, false);
+            if(animationCompleteCallback) animationCompleteCallback();
             //if this widget is inside a layer, we should just remove the layer from the queue
             if(shouldFire) $ax.action.fireAnimationFromQueue(id, $ax.action.queueTypes.move);
         } else if (options.trajectory === 'straight' || moveInfo.horzX === 0 || moveInfo.vertY === 0) {

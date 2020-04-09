@@ -531,7 +531,6 @@ var openPreviousPage = $axure.player.openPreviousPage = function () {
             allNodeUrls.push(node.url);
         }
         returnVal += "<span class='sitemapPageIcon";
-		if(node.type == "Flow"){ returnVal += " sitemapFlowIcon";}
         if(isFolder) { returnVal += " sitemapFolderIcon"; }
 
         returnVal += "'></span><span class='sitemapPageName'>";
